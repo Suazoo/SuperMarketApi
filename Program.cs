@@ -1,0 +1,111 @@
+using System.Text;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
+using SuperMarketAPI.Data;
+using SuperMarketAPI.Helpers;
+using SuperMarketAPI.Interfaces;
+using SuperMarketAPI.Middleware;
+using SuperMarketAPI.Repositories;
+using SuperMarketAPI.Services;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Servicios
+builder.Services.AddControllers();
+builder.Services.AddOpenApi();
+
+// Base de datos
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000", "http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+// Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 100,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+
+    options.RejectionStatusCode = 429;
+});
+
+// Inyección de dependencias
+builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<IProductoService, ProductoService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<JwtHelper>();
+
+// JWT Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+var app = builder.Build();
+
+// ===== PIPELINE DE MIDDLEWARE (el orden importa) =====
+
+// 1. Excepciones - envuelve todo para capturar errores
+app.UseMiddleware<ExceptionMiddleware>();
+
+// 2. Response Time - mide el tiempo de cada request
+app.UseMiddleware<ResponseTimeMiddleware>();
+
+// 3. Logging - registra entrada y salida
+app.UseMiddleware<LoggingMiddleware>();
+
+// 4. Rate Limiting - protege contra abuso
+app.UseRateLimiter();
+
+// 5. CORS - permite peticiones desde el frontend
+app.UseCors("AllowFrontend");
+
+// 6. Scalar - documentación (solo en desarrollo)
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
+
+app.UseHttpsRedirection();
+
+// 7. Auth - autenticación y autorización
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+app.Run();
