@@ -5,6 +5,7 @@ namespace SuperMarketAPI.Interfaces;
 public interface IProductoService
 {
     Task<IEnumerable<ProductoResponseDTO>> GetAll();
+    Task<PagedResponseDTO<ProductoResponseDTO>> GetPaged(PaginacionDTO paginacion);
     Task<ProductoResponseDTO?> GetById(int id);
     Task<ProductoResponseDTO> Create(CrearProductoDTO dto);
     Task<ProductoResponseDTO?> Update(int id, CrearProductoDTO dto);

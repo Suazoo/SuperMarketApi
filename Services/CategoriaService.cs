@@ -80,4 +80,25 @@ public class CategoriaService : ICategoriaService
             FechaCreacion = update.FechaCreacion
         };
     }
+
+    // Implementación del método para obtener categorías paginadas
+    public async Task<PagedResponseDTO<CategoriaResponseDTO>> GetPaged(PaginacionDTO paginacion)
+    {
+        var (items, totalCount) = await _repository.GetPaged(paginacion.PageNumber, paginacion.PageSize);
+
+        return new PagedResponseDTO<CategoriaResponseDTO>
+        {
+            Data = items.Select(c => new CategoriaResponseDTO
+            {
+                Id = c.Id,
+                Nombre = c.Nombre,
+                Descripcion = c.Descripcion,
+                FechaCreacion = c.FechaCreacion
+            }),
+            PageNumber = paginacion.PageNumber,
+            PageSize = paginacion.PageSize,
+            TotalRecords = totalCount,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)paginacion.PageSize)
+        };
+    }
 }

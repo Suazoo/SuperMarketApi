@@ -11,6 +11,7 @@ public class AppDbContext : DbContext
     public DbSet<Producto> Productos { get; set; }
     public DbSet<Categoria> Categorias { get; set; }
     public DbSet<Usuario> Usuarios { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -40,6 +41,16 @@ public class AppDbContext : DbContext
             entity.Property(u => u.Email).HasMaxLength(150).IsRequired();
             entity.HasIndex(u => u.Email).IsUnique();
             entity.Property(u => u.Rol).HasMaxLength(20);
+        });
+
+        // Configuración de RefreshToken
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.Property(r => r.Token).HasMaxLength(200).IsRequired();
+            entity.HasIndex(r => r.Token).IsUnique();
+            entity.HasOne(r => r.Usuario)
+                  .WithMany(u => u.RefreshTokens)
+                  .HasForeignKey(r => r.UsuarioId);
         });
     }
 }

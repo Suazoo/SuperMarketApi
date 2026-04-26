@@ -1,9 +1,12 @@
 using System.Text;
 using System.Threading.RateLimiting;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using Serilog;
 using SuperMarketAPI.Data;
 using SuperMarketAPI.Helpers;
 using SuperMarketAPI.Interfaces;
@@ -11,10 +14,25 @@ using SuperMarketAPI.Middleware;
 using SuperMarketAPI.Repositories;
 using SuperMarketAPI.Services;
 
+
+// Configurar Serilog
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
 var builder = WebApplication.CreateBuilder(args);
+
+
+// Usar Serilog como logger
+builder.Host.UseSerilog();
 
 // Servicios
 builder.Services.AddControllers();
+// Validación
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddOpenApi();
 
 // Base de datos

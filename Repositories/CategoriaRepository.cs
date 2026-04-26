@@ -49,4 +49,17 @@ public class CategoriaRepository : ICategoriaRepository
         await _context.SaveChangesAsync();
         return existing;
     }
+
+    // Implementación de paginación
+    public async Task<(IEnumerable<Categoria> Items, int TotalCount)> GetPaged(int pageNumber, int pageSize)
+    {
+        var totalCount = await _context.Categorias.CountAsync();
+        var items = await _context.Categorias
+            .OrderBy(c => c.Id)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
 }

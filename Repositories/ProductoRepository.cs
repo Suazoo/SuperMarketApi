@@ -25,6 +25,20 @@ public class ProductoRepository : IProductoRepository
         return producto;
     }
 
+    // Implementación de paginación
+    public async Task<(IEnumerable<Producto> Items, int TotalCount)> GetPaged(int pageNumber, int pageSize)
+    {
+        var totalCount = await _context.Productos.CountAsync();
+        var items = await _context.Productos
+            .Include(p => p.Categoria)
+            .OrderBy(p => p.Id)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
+
     public async Task<bool> Delete(int id)
     {
         var producto = await _context.Productos.FindAsync(id);

@@ -98,4 +98,28 @@ public class ProductoService : IProductoService
             FechaCreacion = result.FechaCreacion
         };
     }
+
+    // Implementación del método para obtener productos paginados
+    public async Task<PagedResponseDTO<ProductoResponseDTO>> GetPaged(PaginacionDTO paginacion)
+    {
+        var (items, totalCount) = await _repository.GetPaged(paginacion.PageNumber, paginacion.PageSize);
+
+        return new PagedResponseDTO<ProductoResponseDTO>
+        {
+            Data = items.Select(p => new ProductoResponseDTO
+            {
+                Id = p.Id,
+                Nombre = p.Nombre,
+                Descripcion = p.Descripcion,
+                Precio = p.Precio,
+                Stock = p.Stock,
+                Categoria = p.Categoria.Nombre,
+                FechaCreacion = p.FechaCreacion
+            }),
+            PageNumber = paginacion.PageNumber,
+            PageSize = paginacion.PageSize,
+            TotalRecords = totalCount,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)paginacion.PageSize)
+        };
+    }
 }

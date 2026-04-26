@@ -8,4 +8,6 @@ public class Usuario
     public string PasswordHash { get; set; } = string.Empty;
     public string Rol { get; set; } = "User";
     public DateTime FechaCreacion { get; set; } = DateTime.Now;
+
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 }

@@ -4,6 +4,8 @@ namespace SuperMarketAPI.Interfaces;
 
 public interface IAuthService
 {
-    Task<AuthResponseDTO> Register(RegisterDTO dto);
-    Task<AuthResponseDTO?> Login(LoginDTO dto);
+    Task<TokenResponseDTO> Register(RegisterDTO dto);
+    Task<TokenResponseDTO> RegisterWithRole(RegisterAdminDTO dto);
+    Task<TokenResponseDTO?> Login(LoginDTO dto);
+    Task<TokenResponseDTO?> RefreshToken(RefreshTokenDTO dto);
 }
