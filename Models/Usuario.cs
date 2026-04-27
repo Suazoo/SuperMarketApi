@@ -7,7 +7,7 @@ public class Usuario
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public string Rol { get; set; } = "User";
-    public DateTime FechaCreacion { get; set; } = DateTime.Now;
+    public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 }

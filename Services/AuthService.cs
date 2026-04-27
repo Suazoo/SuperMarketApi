@@ -91,7 +91,7 @@ public class AuthService : IAuthService
         var token = new RefreshToken
         {
             Token = refreshToken,
-            Expiration = DateTime.Now.AddDays(7),
+            Expiration = DateTime.UtcNow.AddDays(7),
             UsuarioId = usuario.Id
         };
 

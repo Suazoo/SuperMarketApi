@@ -37,7 +37,7 @@ builder.Services.AddOpenApi();
 
 // Base de datos
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // CORS
 builder.Services.AddCors(options =>
@@ -113,11 +113,9 @@ app.UseRateLimiter();
 app.UseCors("AllowFrontend");
 
 // 6. Scalar - documentación (solo en desarrollo)
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference();
-}
+app.MapOpenApi();
+app.MapScalarApiReference();
+
 
 app.UseHttpsRedirection();
 

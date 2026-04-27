@@ -9,7 +9,7 @@ public class Producto
     public string? Descripcion { get; set; }
     public decimal Precio { get; set; }
     public int Stock { get; set; }
-    public DateTime FechaCreacion { get; set; } = DateTime.Now;
+    public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
     // Relación: un producto pertenece a una categoría
     public int CategoriaId { get; set; }

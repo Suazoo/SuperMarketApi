@@ -7,7 +7,7 @@ namespace SuperMarketAPI.Models
         public int Id { get; set; }
         public string Nombre { get; set; } = string.Empty;
         public string? Descripcion { get; set; }
-        public DateTime FechaCreacion { get; set; } = DateTime.Now;
+        public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
         // Relación: una categoría tiene muchos productos
         public ICollection<Producto> Productos { get; set; } = new List<Producto>();

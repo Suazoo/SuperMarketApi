@@ -1,0 +1,23 @@
+## .NET
+bin/
+obj/
+publish/
+
+## User secrets
+appsettings.Development.json
+
+## Logs
+Logs/
+
+## IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+## Docker
+docker-compose.override.yml
+
+## OS
+Thumbs.db
+.DS_Store
