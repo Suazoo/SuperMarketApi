@@ -122,6 +122,6 @@ app.UseHttpsRedirection();
 // 7. Auth - autenticación y autorización
 app.UseAuthentication();
 app.UseAuthorization();
-
+// 8. Controllers - maneja las rutas de la API
 app.MapControllers();
 app.Run();
