@@ -44,15 +44,24 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", 
+        policy.WithOrigins(
+                "http://localhost:3000",
                 "http://localhost:5173",
                 "https://www.figma.com",
-                "https://figma.com")
+                "https://figma.com",
+                // 👇 Lovable
+                "https://id-preview--851fd874-c1a0-4c0c-ba60-24e2ae0ec2e7.lovable.app",
+                "https://851fd874-c1a0-4c0c-ba60-24e2ae0ec2e7.lovableproject.com",
+                "https://project--851fd874-c1a0-4c0c-ba60-24e2ae0ec2e7.lovable.app",
+                "https://project--851fd874-c1a0-4c0c-ba60-24e2ae0ec2e7-dev.lovable.app"
+              )
+              .SetIsOriginAllowedToAllowWildcardSubdomains() // por si Lovable cambia subdominios
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
     });
 });
+
 
 // Rate Limiting
 builder.Services.AddRateLimiter(options =>
